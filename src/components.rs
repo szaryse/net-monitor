@@ -1,0 +1,117 @@
+#![allow(non_snake_case)]
+use dioxus::prelude::*;
+
+#[derive(Props)]
+pub struct FlexboxProps<'a> {
+    #[props(default = "row")]
+    direction: &'a str,
+    #[props(default = "center")]
+    justify_content: &'a str,
+    #[props(default = "center")]
+    align_items: &'a str,
+    #[props(default = "0")]
+    padding: &'a str,
+    #[props(default = "auto")]
+    height: &'a str,
+    children: Element<'a>,
+}
+
+pub fn Flexbox<'a>(cx: Scope<'a, FlexboxProps<'a>>) -> Element {
+    cx.render(rsx! {
+        div {
+            display: "flex",
+            flex_direction: cx.props.direction,
+            justify_content: cx.props.justify_content,
+            align_items: cx.props.align_items,
+            flex_grow: 1,
+            width: "100%",
+            height: cx.props.height,
+            padding: cx.props.padding,
+            &cx.props.children
+        }
+    })
+}
+
+#[derive(Props)]
+pub struct LabelProps<'a> {
+    #[props(default = "18px")]
+    font_size: &'a str,
+    text: &'a str,
+    #[props(default = "inherit")]
+    color: &'a str,
+    #[props(default = "center")]
+    text_align: &'a str,
+    #[props(default = "auto")]
+    height: &'a str,
+}
+
+pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
+    cx.render(rsx! {
+        div {
+            font_family: "'Consolas', sans-serif",
+            text_align: cx.props.text_align,
+            font_size: cx.props.font_size,
+            color: cx.props.color,
+            margin: "0 4px",
+            height: cx.props.height,
+            "{cx.props.text}"
+        }
+    })
+}
+
+#[derive(Props)]
+pub struct WrapperProps<'a> {
+    #[props(default = "100%")]
+    width: &'a str,
+    #[props(default = "auto")]
+    height: &'a str,
+    children: Element<'a>,
+}
+
+pub fn Wrapper<'a>(cx: Scope<'a, WrapperProps<'a>>) -> Element {
+    cx.render(rsx! {
+        div {
+            width: cx.props.width,
+            height: cx.props.height,
+            flex_shrink: 0,
+            &cx.props.children
+        }
+    })
+}
+
+#[derive(PartialEq, Props)]
+pub struct TransferProps<'a> {
+    text: &'a str,
+    value: &'a str,
+    #[props(default = "inherit")]
+    color: &'a str,
+    #[props(default = "auto")]
+    height: &'a str,
+    #[props(default = "18px")]
+    font_size: &'a str,
+}
+
+pub fn Transfer<'a>(cx: Scope<'a, TransferProps<'a>>) -> Element {
+    cx.render(rsx! {
+        Flexbox {
+            justify_content: "flex-start",
+            Wrapper{
+                width: "44px",
+                Label {
+                    text: "{cx.props.text}",
+                    color: "{cx.props.color}",
+                    text_align: "left",
+                    height: "{cx.props.height}",
+                    font_size: "{cx.props.font_size}",
+                }
+            }
+            Label {
+                text: "{cx.props.value}",
+                color: "{cx.props.color}",
+                text_align: "left",
+                height: "{cx.props.height}",
+                font_size: "{cx.props.font_size}",
+            }
+        }
+    })
+}
