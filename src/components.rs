@@ -13,6 +13,10 @@ pub struct FlexboxProps<'a> {
     padding: &'a str,
     #[props(default = "auto")]
     height: &'a str,
+    #[props(default = "100%")]
+    width: &'a str,
+    #[props(default = "1")]
+    flex_grow: &'a str,
     children: Element<'a>,
 }
 
@@ -23,8 +27,8 @@ pub fn Flexbox<'a>(cx: Scope<'a, FlexboxProps<'a>>) -> Element {
             flex_direction: cx.props.direction,
             justify_content: cx.props.justify_content,
             align_items: cx.props.align_items,
-            flex_grow: 1,
-            width: "100%",
+            flex_grow: cx.props.flex_grow,
+            width: cx.props.width,
             height: cx.props.height,
             padding: cx.props.padding,
             &cx.props.children
@@ -54,6 +58,7 @@ pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
             color: cx.props.color,
             margin: "0 4px",
             height: cx.props.height,
+            white_space: "nowrap",
             "{cx.props.text}"
         }
     })

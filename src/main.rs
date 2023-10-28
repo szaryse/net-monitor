@@ -7,9 +7,11 @@ use std::time::Duration;
 use sysinfo::{NetworkExt, NetworksExt, System, SystemExt};
 use tokio::time::sleep;
 
+use crate::chart::Chart;
 use crate::components::{Flexbox, Transfer};
 use crate::helpers::{count_new_transfer, format_transfer, global_styles};
 
+mod chart;
 mod components;
 mod helpers;
 
@@ -19,7 +21,7 @@ fn main() {
         Config::new()
             .with_window(
                 WindowBuilder::new()
-                    .with_inner_size(LogicalSize::new(480, 80))
+                    .with_inner_size(LogicalSize::new(400, 80))
                     .with_always_on_top(true)
                     .with_title("Net Monitor 0.1")
                     .with_resizable(false)
@@ -77,9 +79,12 @@ pub fn App(cx: Scope) -> Element {
     cx.render(rsx! {
         Flexbox {
             padding: "8px",
+            justify_content: "space-between",
             Flexbox{
                 direction: "column",
                 align_items: "flex-start",
+                width: "200px",
+                flex_grow: "0",
                 Transfer {
                     text: "U\u{02191}",
                     value: "{transmitted}",
@@ -94,9 +99,7 @@ pub fn App(cx: Scope) -> Element {
                     font_size: "20px"
                 }
             }
-            Flexbox{
-                div { "Chart" }
-            }
+            Chart{}
         }
 
     })
