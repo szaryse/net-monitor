@@ -3,6 +3,7 @@ use dioxus_desktop::{
     tao::dpi::{LogicalSize, PhysicalPosition},
     Config, WindowBuilder,
 };
+use std::collections::VecDeque;
 use std::time::Duration;
 use sysinfo::{NetworkExt, NetworksExt, System, SystemExt};
 use tokio::time::sleep;
@@ -26,7 +27,7 @@ fn main() {
                     .with_title("Net Monitor 0.1")
                     .with_resizable(false)
                     // INFO: position only for development
-                    .with_position(PhysicalPosition::new(3070, 20)),
+                    .with_position(PhysicalPosition::new(3220, 20)),
             )
             .with_custom_head(global_styles().to_string()),
     );
@@ -36,11 +37,24 @@ fn main() {
 struct Transfer {
     dr: f64,
     dt: f64,
+    upload: VecDeque<f64>,
+}
+impl Transfer {
+    pub fn push_front(&mut self, dt: f64) {
+        self.upload.push_front(dt);
+    }
+    pub fn pop_back(&mut self) {
+        self.upload.pop_back();
+    }
 }
 
 #[allow(non_snake_case)]
 pub fn App(cx: Scope) -> Element {
-    use_shared_state_provider(cx, || Transfer { dr: 0.0, dt: 0.0 });
+    use_shared_state_provider(cx, || Transfer {
+        dr: 0.0,
+        dt: 0.0,
+        upload: VecDeque::new(),
+    });
     let transfers = use_shared_state::<Transfer>(cx).unwrap();
 
     let received = use_state::<f64>(cx, || 0.0);
@@ -61,12 +75,20 @@ pub fn App(cx: Scope) -> Element {
 
                     if interface_name == "Wi-Fi" {
                         let received_bytes = network.total_received() as f64;
-                        received.set(received_bytes);
-                        transfers.write().dr = count_new_transfer(received_bytes, *received);
-
                         let transmitted_bytes = network.total_transmitted() as f64;
+
+                        received.set(received_bytes);
                         transmitted.set(transmitted_bytes);
-                        transfers.write().dt = count_new_transfer(transmitted_bytes, *transmitted);
+
+                        let dt = count_new_transfer(transmitted_bytes, *transmitted);
+
+                        transfers.write().dr = count_new_transfer(received_bytes, *received);
+                        transfers.write().dt = dt;
+                        transfers.write().push_front(dt);
+
+                        if transfers.read().upload.len() > 30 {
+                            transfers.write().pop_back();
+                        }
                     }
                 }
             }
@@ -101,6 +123,5 @@ pub fn App(cx: Scope) -> Element {
             }
             Chart{}
         }
-
     })
 }

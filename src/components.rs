@@ -56,7 +56,7 @@ pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
             text_align: cx.props.text_align,
             font_size: cx.props.font_size,
             color: cx.props.color,
-            margin: "0 4px",
+            // margin: "0 4px",
             height: cx.props.height,
             white_space: "nowrap",
             "{cx.props.text}"

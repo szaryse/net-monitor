@@ -1,8 +1,11 @@
 use dioxus::prelude::*;
 
+use crate::Transfer;
+
 const CHART_HEIGHT: f64 = 64.0;
 const CHART_WIDTH: f64 = 180.0;
-const BAR_WIDTH: f64 = 5.0;
+const BAR_WIDTH: f64 = 4.0;
+const BAR_MARGIN: f64 = 2.0;
 
 const PIXEL_PER_MBIT: f64 = 8.0;
 
@@ -12,19 +15,20 @@ const TRANSFER_1080P: f64 = 4.5;
 
 #[allow(non_snake_case)]
 pub fn Chart(cx: Scope) -> Element {
-    let data = vec![
-        1.0, 2.0, 3.6, 4.2, 10.0, 6.0, 1.0, 2.0, 4.0, 8.0, 10.0, 6.0, 1.0, 2.0, 4.0, 8.0, 10.0,
-        6.0, 1.0, 2.0, 4.0, 8.0, 10.0, 6.0, 1.0, 2.0, 4.0, 8.0, 10.0, 6.0,
-    ];
+    let transfers = use_shared_state::<Transfer>(cx).unwrap();
 
-    let bars = data.iter().rev().enumerate().map(|(index, transfer)| {
-        let bar_height = *transfer * PIXEL_PER_MBIT;
+    let upload = transfers.read().upload.clone();
+
+    let bars = upload.iter().enumerate().map(|(index, transfer)| {
+        let transfer_mbits = *transfer / 1000.0;
+
+        let bar_height = transfer_mbits * PIXEL_PER_MBIT;
         let y_position = CHART_HEIGHT - bar_height;
-        let x_position = index as f64 * (BAR_WIDTH + 1.0);
+        let x_position = CHART_WIDTH - ((index + 1) as f64 * (BAR_WIDTH + BAR_MARGIN));
 
-        let color = match transfer {
-            x if x < &TRANSFER_720P => 0,
-            x if x < &TRANSFER_1080P => ((transfer - 3.0) * 80.0) as i32,
+        let color = match transfer_mbits {
+            x if x < TRANSFER_720P => 0,
+            x if x < TRANSFER_1080P => ((transfer_mbits - 3.0) * 80.0) as i32,
             _ => 120,
         };
 
