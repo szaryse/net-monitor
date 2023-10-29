@@ -1,3 +1,5 @@
+use crate::UPDATE_TIME;
+
 pub fn global_styles() -> &'static str {
     r"
         <style>
@@ -25,5 +27,5 @@ pub fn format_transfer(transfer: f64) -> String {
 }
 
 pub fn count_new_transfer(total_bytes: f64, bytes: f64) -> f64 {
-    (total_bytes - bytes) * 8.0 / (1_000.0)
+    (total_bytes - bytes) * 8.0 / (1_000.0 * UPDATE_TIME as f64)
 }

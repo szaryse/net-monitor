@@ -16,13 +16,15 @@ mod chart;
 mod components;
 mod helpers;
 
+pub const UPDATE_TIME: u64 = 2;
+
 fn main() {
     dioxus_desktop::launch_cfg(
         App,
         Config::new()
             .with_window(
                 WindowBuilder::new()
-                    .with_inner_size(LogicalSize::new(400, 80))
+                    .with_inner_size(LogicalSize::new(340, 48))
                     .with_always_on_top(true)
                     .with_title("Net Monitor 0.1")
                     .with_resizable(false)
@@ -68,7 +70,7 @@ pub fn App(cx: Scope) -> Element {
             let networks = s.networks();
 
             loop {
-                sleep(Duration::from_millis(1000)).await;
+                sleep(Duration::from_secs(UPDATE_TIME)).await;
 
                 for network in networks.iter() {
                     let (interface_name, network) = network;
@@ -100,25 +102,25 @@ pub fn App(cx: Scope) -> Element {
 
     cx.render(rsx! {
         Flexbox {
-            padding: "8px",
+            padding: "4px",
             justify_content: "space-between",
             Flexbox{
                 direction: "column",
                 align_items: "flex-start",
-                width: "200px",
+                width: "140px",
                 flex_grow: "0",
                 Transfer {
                     text: "U\u{02191}",
                     value: "{transmitted}",
                     color: "#bf94ff",
-                    height: "40px",
-                    font_size: "32px"
+                    height: "22px",
+                    font_size: "20px"
                 }
                 Transfer {
                     text: "D\u{02193}",
                     value: "{received}",
-                    height: "24px",
-                    font_size: "20px"
+                    height: "18px",
+                    font_size: "16px"
                 }
             }
             Chart{}

@@ -37,7 +37,7 @@ pub fn Flexbox<'a>(cx: Scope<'a, FlexboxProps<'a>>) -> Element {
 }
 
 #[derive(Props)]
-pub struct LabelProps<'a> {
+pub struct TextProps<'a> {
     #[props(default = "18px")]
     font_size: &'a str,
     text: &'a str,
@@ -46,18 +46,17 @@ pub struct LabelProps<'a> {
     #[props(default = "center")]
     text_align: &'a str,
     #[props(default = "auto")]
-    height: &'a str,
+    line_height: &'a str,
 }
 
-pub fn Label<'a>(cx: Scope<'a, LabelProps<'a>>) -> Element {
+pub fn Text<'a>(cx: Scope<'a, TextProps<'a>>) -> Element {
     cx.render(rsx! {
         div {
-            font_family: "'Consolas', sans-serif",
             text_align: cx.props.text_align,
+            font_family: "'Consolas', sans-serif",
             font_size: cx.props.font_size,
             color: cx.props.color,
-            // margin: "0 4px",
-            height: cx.props.height,
+            line_height: cx.props.line_height,
             white_space: "nowrap",
             "{cx.props.text}"
         }
@@ -102,19 +101,19 @@ pub fn Transfer<'a>(cx: Scope<'a, TransferProps<'a>>) -> Element {
             justify_content: "flex-start",
             Wrapper{
                 width: "44px",
-                Label {
+                Text {
                     text: "{cx.props.text}",
                     color: "{cx.props.color}",
                     text_align: "left",
-                    height: "{cx.props.height}",
+                    line_height: "{cx.props.height}",
                     font_size: "{cx.props.font_size}",
                 }
             }
-            Label {
+            Text {
                 text: "{cx.props.value}",
                 color: "{cx.props.color}",
                 text_align: "left",
-                height: "{cx.props.height}",
+                line_height: "{cx.props.height}",
                 font_size: "{cx.props.font_size}",
             }
         }
