@@ -14,10 +14,14 @@ const BAR_MARGIN: u64 = 2;
 const TRANSFER_720P: f64 = 3.0;
 const TRANSFER_1080P: f64 = 4.5;
 
+#[derive(PartialEq, Props, Clone)]
+pub struct ChartProps {
+    transfer: Transfer,
+}
+
 #[allow(non_snake_case)]
-pub fn Chart(cx: Scope) -> Element {
-    let transfers = use_shared_state::<Transfer>(cx).unwrap();
-    let upload = transfers.read().upload.clone();
+pub fn Chart(props: ChartProps) -> Element {
+    let upload = props.transfer.upload;
 
     let bars = upload.iter().enumerate().map(|(index, transfer)| {
         let transfer_mbits = *transfer / 1000.0;
@@ -43,7 +47,7 @@ pub fn Chart(cx: Scope) -> Element {
         })
     });
 
-    cx.render(rsx! {
+    rsx! {
         svg {
             version: "1.1",
             height: "{CHART_HEIGHT}",
@@ -58,7 +62,7 @@ pub fn Chart(cx: Scope) -> Element {
                 stroke_width: "1",
                 fill: "#bf94ff",
             }
-            bars,
+            { bars },
         }
-    })
+    }
 }

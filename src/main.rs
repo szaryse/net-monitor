@@ -1,16 +1,15 @@
+use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao};
 use dioxus::prelude::*;
-use dioxus_desktop::{
-    tao::dpi::{LogicalSize, PhysicalPosition},
-    Config, WindowBuilder,
-};
+
 use std::collections::VecDeque;
 use std::time::Duration;
 use sysinfo::{NetworkExt, NetworksExt, System, SystemExt};
 use tokio::time::sleep;
+use sir::{AppStyle, global_css};
 
 use crate::chart::Chart;
 use crate::components::{Flexbox, Transfer};
-use crate::helpers::{count_new_transfer, format_transfer, global_styles};
+use crate::helpers::{count_new_transfer, format_transfer};
 
 mod chart;
 mod components;
@@ -19,26 +18,44 @@ mod helpers;
 pub const UPDATE_TIME: u64 = 2;
 
 fn main() {
-    dioxus_desktop::launch_cfg(
-        App,
-        Config::new()
-            .with_window(
-                WindowBuilder::new()
-                    .with_inner_size(LogicalSize::new(340, 48))
-                    .with_always_on_top(true)
-                    .with_title("Net Monitor 0.1")
-                    .with_resizable(false)
-                    // INFO: position only for development
-                    .with_position(PhysicalPosition::new(3220, 20)),
-            )
-            .with_custom_head(global_styles().to_string()),
-    );
+    global_css!("
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            font-family: 'Consolas', sans-serif;
+        }
+        body {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #adadb8;
+        }
+    ");
+
+    let window = WindowBuilder::new()
+        .with_transparent(true)
+        .with_inner_size(LogicalSize::new(340, 68))
+        .with_always_on_top(true)
+        .with_title("Net Monitor 0.2")
+        .with_resizable(true)
+        // INFO: position only for development
+        .with_position(PhysicalPosition::new(3220, 20)
+        );
+
+    LaunchBuilder::desktop()
+        .with_cfg(Config::new()
+            .with_window(window))
+        .launch(App);
 }
 
-#[derive(PartialEq)]
+
+#[derive(PartialEq, Clone, Debug)]
 struct Transfer {
     dr: f64,
     dt: f64,
+    rb: f64,
+    tb: f64,
     upload: VecDeque<f64>,
 }
 impl Transfer {
@@ -51,21 +68,17 @@ impl Transfer {
 }
 
 #[allow(non_snake_case)]
-pub fn App(cx: Scope) -> Element {
-    use_shared_state_provider(cx, || Transfer {
+pub fn App() -> Element {
+    let mut transfer = use_signal(|| Transfer {
         dr: 0.0,
         dt: 0.0,
+        rb: 0.0,
+        tb: 0.0,
         upload: VecDeque::new(),
     });
-    let transfers = use_shared_state::<Transfer>(cx).unwrap();
 
-    let received = use_state::<f64>(cx, || 0.0);
-    let transmitted = use_state::<f64>(cx, || 0.0);
-
-    use_future(
-        cx,
-        (received, transmitted, transfers),
-        |(received, transmitted, transfers)| async move {
+    let _ = use_resource(
+        move || async move {
             let s = System::new_all();
             let networks = s.networks();
 
@@ -75,32 +88,38 @@ pub fn App(cx: Scope) -> Element {
                 for network in networks.iter() {
                     let (interface_name, network) = network;
 
-                    if interface_name == "Wi-Fi" {
+                    // "Wi-Fi"
+                    if interface_name == "Ethernet" {
                         let received_bytes = network.total_received() as f64;
                         let transmitted_bytes = network.total_transmitted() as f64;
 
-                        received.set(received_bytes);
-                        transmitted.set(transmitted_bytes);
 
-                        let dt = count_new_transfer(transmitted_bytes, *transmitted);
+                        let oldTransfer = transfer.read().clone();
 
-                        transfers.write().dr = count_new_transfer(received_bytes, *received);
-                        transfers.write().dt = dt;
-                        transfers.write().push_front(dt);
+                        let dt = count_new_transfer(transmitted_bytes, oldTransfer.tb);
+                        let dr = count_new_transfer(received_bytes, oldTransfer.rb);
 
-                        if transfers.read().upload.len() > 30 {
-                            transfers.write().pop_back();
+                        transfer.write().dr = dr;
+                        transfer.write().dt = dt;
+                        transfer.write().push_front(dt);
+
+                        if transfer.read().upload.len() > 30 {
+                            transfer.write().pop_back();
                         }
+
+                        transfer.write().rb = received_bytes;
+                        transfer.write().tb = transmitted_bytes;
                     }
                 }
             }
         },
     );
 
-    let transmitted = format_transfer(transfers.read().dt);
-    let received = format_transfer(transfers.read().dr);
+    let transmitted = format_transfer(transfer.read().dt);
+    let received = format_transfer(transfer.read().dr);
 
-    cx.render(rsx! {
+    rsx! {
+        AppStyle {},
         Flexbox {
             padding: "4px",
             justify_content: "space-between",
@@ -123,7 +142,9 @@ pub fn App(cx: Scope) -> Element {
                     font_size: "16px"
                 }
             }
-            Chart{}
+            Chart{
+                transfer: transfer.read().clone(),
+            }
         }
-    })
+    }
 }
