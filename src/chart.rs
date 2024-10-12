@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::app::Transfer;
+use crate::app::{TransferQueue};
 
 const PIXELS_PER_MBIT: u64 = 4;
 const MAX_TRANSFER_MBIT: f64 = 8.0;
@@ -16,12 +16,12 @@ const TRANSFER_1080P: f64 = 4.5;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ChartProps {
-    transfer: Transfer,
+    chart_data: TransferQueue,
 }
 
 #[allow(non_snake_case)]
 pub fn Chart(props: ChartProps) -> Element {
-    let upload = props.transfer.upload;
+    let upload = props.chart_data.upload;
 
     let bars = upload.iter().enumerate().map(|(index, transfer)| {
         let transfer_mbits = *transfer / 1000.0;

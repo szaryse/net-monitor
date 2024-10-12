@@ -13,14 +13,22 @@ use crate::helpers::{count_new_transfer, format_transfer};
 pub const UPDATE_TIME: u64 = 2;
 
 #[derive(PartialEq, Clone, Debug)]
-pub struct Transfer {
-    dr: f64,
-    dt: f64,
-    rb: f64,
-    tb: f64,
+struct CurrentTransfer {
+    delta_received: f64,
+    delta_transmitted: f64,
+}
+
+#[derive(PartialEq, Clone, Debug)]
+struct PreviousTransfer {
+    total_received: f64,
+    total_transmitted: f64,
+}
+
+#[derive(PartialEq, Clone, Debug)]
+pub struct TransferQueue {
     pub upload: VecDeque<f64>,
 }
-impl Transfer {
+impl TransferQueue {
     pub fn push_front(&mut self, dt: f64) {
         self.upload.push_front(dt);
     }
@@ -31,11 +39,15 @@ impl Transfer {
 
 #[allow(non_snake_case)]
 pub fn App() -> Element {
-    let mut transfer = use_signal(|| Transfer {
-        dr: 0.0,
-        dt: 0.0,
-        rb: 0.0,
-        tb: 0.0,
+    let mut previous_transfer = use_signal(|| PreviousTransfer {
+        total_received: 0.0,
+        total_transmitted: 0.0,
+    });
+    let mut current_transfer = use_signal(|| CurrentTransfer {
+        delta_received: 0.0,
+        delta_transmitted: 0.0,
+    });
+    let mut chart_data = use_signal(|| TransferQueue {
         upload: VecDeque::new(),
     });
 
@@ -50,35 +62,40 @@ pub fn App() -> Element {
                 for network in networks.iter() {
                     let (interface_name, network) = network;
 
-                    // "Wi-Fi"
+                    // todo "Wi-Fi"
                     if interface_name == "Ethernet" {
                         let received_bytes = network.total_received() as f64;
                         let transmitted_bytes = network.total_transmitted() as f64;
 
+                        let delta_transmitted = count_new_transfer(transmitted_bytes, previous_transfer().total_transmitted);
+                        let delta_received = count_new_transfer(received_bytes, previous_transfer().total_received);
 
-                        let oldTransfer = transfer.read().clone();
+                        let current_data = CurrentTransfer {
+                            delta_received,
+                            delta_transmitted,
+                        };
+                        current_transfer.set(current_data);
 
-                        let dt = count_new_transfer(transmitted_bytes, oldTransfer.tb);
-                        let dr = count_new_transfer(received_bytes, oldTransfer.rb);
-
-                        transfer.write().dr = dr;
-                        transfer.write().dt = dt;
-                        transfer.write().push_front(dt);
-
-                        if transfer.read().upload.len() > 30 {
-                            transfer.write().pop_back();
+                        let mut new_chart_data = chart_data();
+                        new_chart_data.push_front(delta_transmitted);
+                        if new_chart_data.upload.len() > 30 {
+                            new_chart_data.pop_back();
                         }
+                        chart_data.set(new_chart_data);
 
-                        transfer.write().rb = received_bytes;
-                        transfer.write().tb = transmitted_bytes;
+                        let transfer = PreviousTransfer {
+                            total_received: received_bytes,
+                            total_transmitted: transmitted_bytes,
+                        };
+                        previous_transfer.set(transfer);
                     }
                 }
             }
         },
     );
 
-    let transmitted = format_transfer(transfer.read().dt);
-    let received = format_transfer(transfer.read().dr);
+    let transmitted = format_transfer(current_transfer().delta_transmitted);
+    let received = format_transfer(current_transfer().delta_received);
 
     rsx! {
         Flexbox {
@@ -104,7 +121,7 @@ pub fn App() -> Element {
                 }
             }
             Chart{
-                transfer: transfer.read().clone(),
+                chart_data: chart_data(),
             }
         }
     }

@@ -1,4 +1,5 @@
-#![windows_subsystem = "windows"]
+// todo #![windows_subsystem = "windows"]
+
 use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao};
 use dioxus::prelude::*;
 use sysinfo::{NetworkExt, NetworksExt, SystemExt};
