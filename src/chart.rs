@@ -1,6 +1,6 @@
 use dioxus::prelude::*;
 
-use crate::Transfer;
+use crate::app::Transfer;
 
 const PIXELS_PER_MBIT: u64 = 4;
 const MAX_TRANSFER_MBIT: f64 = 8.0;

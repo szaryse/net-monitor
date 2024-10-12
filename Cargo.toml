@@ -5,7 +5,6 @@ edition = "2021"
 
 [dependencies]
 dioxus = "0.5.6"
-sir = { version = "0.5.0", features = ["dioxus"] }
 sysinfo = "0.29.10"
 tokio = { version = "1.40", features = ["full"] }
 

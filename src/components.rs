@@ -53,7 +53,6 @@ pub fn Text(props: TextProps) -> Element {
     rsx! {
         div {
             text_align: "{ props.text_align }",
-            font_family: "'Consolas', sans-serif",
             font_size: "{ props.font_size }",
             color: "{ props.color }",
             line_height: "{ props.line_height }",

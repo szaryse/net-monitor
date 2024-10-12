@@ -1,4 +1,21 @@
-use crate::UPDATE_TIME;
+use crate::app::UPDATE_TIME;
+
+pub fn set_global_styles() -> String {
+    r"<style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        html {
+            font-family: 'Consolas', sans-serif;
+        }
+        body {
+            background-color: #0e0e10;
+            color: #adadb8;
+        }
+    </style>".to_string()
+}
 
 pub fn format_transfer(transfer: f64) -> String {
     if transfer > 1000.0 {
