@@ -2,7 +2,6 @@
 
 use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao};
 use dioxus::prelude::*;
-use sysinfo::{NetworkExt, NetworksExt, SystemExt};
 
 use crate::app::App;
 use crate::helpers::set_global_styles;

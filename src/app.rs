@@ -3,7 +3,7 @@ use dioxus::prelude::*;
 
 use std::collections::VecDeque;
 use std::time::Duration;
-use sysinfo::{NetworkExt, NetworksExt, System, SystemExt};
+use sysinfo::{Networks};
 use tokio::time::sleep;
 
 use crate::chart::Chart;
@@ -53,8 +53,7 @@ pub fn App() -> Element {
 
     let _ = use_resource(
         move || async move {
-            let s = System::new_all();
-            let networks = s.networks();
+            let networks = Networks::new_with_refreshed_list();
 
             loop {
                 sleep(Duration::from_secs(UPDATE_TIME)).await;
