@@ -2,17 +2,21 @@ use dioxus::prelude::*;
 
 use crate::app::{TransferQueue};
 
-const PIXELS_PER_MBIT: u64 = 4;
+const PIXELS_PER_MBIT: u64 = 5;
 const MAX_TRANSFER_MBIT: f64 = 8.0;
 
 const CHART_HEIGHT: u64 = (MAX_TRANSFER_MBIT as u64) * PIXELS_PER_MBIT;
-const CHART_WIDTH: u64 = 180;
-const BAR_WIDTH: u64 = 4;
+const CHART_WIDTH: u64 = 180; // 30 bars per minute
+const BAR_WIDTH: u64 = 4; // total bar width is 6px
 const BAR_MARGIN: u64 = 2;
 
 // recommended transfer in Mbits
-const TRANSFER_720P: f64 = 3.0;
-const TRANSFER_1080P: f64 = 4.5;
+const TRANSFER_720P_30FPS: f64 = 3.0;
+// const TRANSFER_720P_60FPS: f64 = 4.5;
+// const TRANSFER_1080P_30FPS: f64 = 4.5;
+const TRANSFER_1080P_60FPS: f64 = 6.0;
+
+const LINE_HEIGHT: u64 = CHART_HEIGHT - (TRANSFER_1080P_60FPS as u64 * PIXELS_PER_MBIT);
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ChartProps {
@@ -31,10 +35,10 @@ pub fn Chart(props: ChartProps) -> Element {
         let x_position = CHART_WIDTH - ((index + 1) as u64 * (BAR_WIDTH + BAR_MARGIN));
 
         let color = match transfer_mbits {
-            x if x < TRANSFER_720P => "red",
-            x if x < 3.5 => "orange",
-            x if x < 4.0 => "yellow",
-            x if x < TRANSFER_1080P => "yellowgreen",
+            x if x < TRANSFER_720P_30FPS => "red",
+            x if x < 4.0 => "orange",
+            x if x < 5.0 => "yellow",
+            x if x < TRANSFER_1080P_60FPS => "yellowgreen",
             _ => "green",
         };
 
@@ -56,8 +60,8 @@ pub fn Chart(props: ChartProps) -> Element {
             line {
                 x1: "0",
                 x2: "{CHART_WIDTH}",
-                y1: "{CHART_HEIGHT - (5 * PIXELS_PER_MBIT)}",
-                y2: "{CHART_HEIGHT - (5 * PIXELS_PER_MBIT)}",
+                y1: "{LINE_HEIGHT}",
+                y2: "{LINE_HEIGHT}",
                 stroke: "#bf94ff",
                 stroke_width: "1",
                 fill: "#bf94ff",

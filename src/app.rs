@@ -1,4 +1,4 @@
-use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao};
+use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao, use_window};
 use dioxus::prelude::*;
 
 use std::collections::VecDeque;
@@ -7,8 +7,10 @@ use sysinfo::{Networks};
 use tokio::time::sleep;
 
 use crate::chart::Chart;
-use crate::components::{Flexbox, Transfer};
+use crate::chart_view::ChartView;
+use crate::components::{ChartViewWrapper, Flexbox, Transfer};
 use crate::helpers::{count_new_transfer, format_transfer};
+use crate::settings::Settings;
 
 pub const UPDATE_TIME: u64 = 2;
 
@@ -39,6 +41,7 @@ impl TransferQueue {
 
 #[allow(non_snake_case)]
 pub fn App() -> Element {
+    let window = use_window();
     let mut previous_transfer = use_signal(|| PreviousTransfer {
         total_received: 0.0,
         total_transmitted: 0.0,
@@ -50,6 +53,11 @@ pub fn App() -> Element {
     let mut chart_data = use_signal(|| TransferQueue {
         upload: VecDeque::new(),
     });
+    let mut is_settings_open = use_signal(|| false);
+    let mut interface = use_signal(|| String::from("Ethernet"));
+    let mut transfer_type = use_signal(|| String::from("Upload"));
+
+    use_effect(move || window.set_inner_size(LogicalSize::new(340, 56)));
 
     let _ = use_resource(
         move || async move {
@@ -61,8 +69,7 @@ pub fn App() -> Element {
                 for network in networks.iter() {
                     let (interface_name, network) = network;
 
-                    // todo "Wi-Fi"
-                    if interface_name == "Ethernet" {
+                    if interface_name == &interface() {
                         let received_bytes = network.total_received() as f64;
                         let transmitted_bytes = network.total_transmitted() as f64;
 
@@ -96,31 +103,24 @@ pub fn App() -> Element {
     let transmitted = format_transfer(current_transfer().delta_transmitted);
     let received = format_transfer(current_transfer().delta_received);
 
-    rsx! {
-        Flexbox {
-            padding: "4px",
-            justify_content: "space-between",
-            Flexbox{
-                direction: "column",
-                align_items: "flex-start",
-                width: "140px",
-                flex_grow: "0",
-                Transfer {
-                    text: "U\u{02191}",
-                    value: "{transmitted}",
-                    color: "#bf94ff",
-                    height: "22px",
-                    font_size: "20px"
-                }
-                Transfer {
-                    text: "D\u{02193}",
-                    value: "{received}",
-                    height: "18px",
-                    font_size: "16px"
-                }
+    if is_settings_open() {
+        rsx! {
+            Settings {
+                onclick: move |_| { is_settings_open.set(!is_settings_open()); },
+                interface,
+                transfer_type,
             }
-            Chart{
-                chart_data: chart_data(),
+        }
+    } else {
+        rsx! {
+            ChartViewWrapper {
+                onclick: move |_| { is_settings_open.set(!is_settings_open()); },
+                ChartView {
+                    transmitted,
+                    received,
+                    chart_data,
+                    transfer_type: transfer_type(),
+                }
             }
         }
     }

@@ -10,14 +10,16 @@ mod chart;
 mod components;
 mod helpers;
 mod app;
+mod chart_view;
+mod settings;
 
 fn main() {
     let window = WindowBuilder::new()
         .with_transparent(true)
-        .with_inner_size(LogicalSize::new(340, 68))
+        .with_inner_size(LogicalSize::new(340, 0))
         .with_always_on_top(true)
         .with_title("Net Monitor 0.2")
-        .with_resizable(true)
+        .with_resizable(false)
         // INFO: position only for development
         .with_position(PhysicalPosition::new(3220, 20)
         );

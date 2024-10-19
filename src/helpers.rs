@@ -11,7 +11,7 @@ pub fn set_global_styles() -> String {
             font-family: 'Consolas', sans-serif;
         }
         body {
-            background-color: rgba(0,0,0,0.8);
+            background-color: transparent
             color: #adadb8;
         }
     </style>".to_string()
