@@ -21,21 +21,28 @@ struct CurrentTransfer {
 }
 
 #[derive(PartialEq, Clone, Debug)]
-struct PreviousTransfer {
-    total_received: f64,
-    total_transmitted: f64,
+pub struct PreviousTransfer {
+    pub total_received: f64,
+    pub total_transmitted: f64,
 }
 
 #[derive(PartialEq, Clone, Debug)]
 pub struct TransferQueue {
     pub upload: VecDeque<f64>,
+    pub download: VecDeque<f64>,
 }
 impl TransferQueue {
-    pub fn push_front(&mut self, dt: f64) {
+    pub fn push_upload_front(&mut self, dt: f64) {
         self.upload.push_front(dt);
     }
-    pub fn pop_back(&mut self) {
+    pub fn pop_upload_back(&mut self) {
         self.upload.pop_back();
+    }
+    pub fn push_download_front(&mut self, dt: f64) {
+        self.download.push_front(dt);
+    }
+    pub fn pop_download_back(&mut self) {
+        self.download.pop_back();
     }
 }
 
@@ -52,6 +59,7 @@ pub fn App() -> Element {
     });
     let mut chart_data = use_signal(|| TransferQueue {
         upload: VecDeque::new(),
+        download: VecDeque::new(),
     });
     let mut is_settings_open = use_signal(|| false);
     let mut interface = use_signal(|| String::from("Ethernet"));
@@ -83,10 +91,16 @@ pub fn App() -> Element {
                         current_transfer.set(current_data);
 
                         let mut new_chart_data = chart_data();
-                        new_chart_data.push_front(delta_transmitted);
+                        new_chart_data.push_upload_front(delta_transmitted);
+                        new_chart_data.push_download_front(delta_received);
+
                         if new_chart_data.upload.len() > 30 {
-                            new_chart_data.pop_back();
+                            new_chart_data.pop_upload_back();
                         }
+                        if new_chart_data.download.len() > 30 {
+                            new_chart_data.pop_download_back();
+                        }
+
                         chart_data.set(new_chart_data);
 
                         let transfer = PreviousTransfer {
@@ -94,6 +108,12 @@ pub fn App() -> Element {
                             total_transmitted: transmitted_bytes,
                         };
                         previous_transfer.set(transfer);
+                    } else {
+                        let no_transfer = CurrentTransfer {
+                            delta_received: 0.0,
+                            delta_transmitted: 0.0,
+                        };
+                        current_transfer.set(no_transfer);
                     }
                 }
             }
@@ -109,6 +129,8 @@ pub fn App() -> Element {
                 onclick: move |_| { is_settings_open.set(!is_settings_open()); },
                 interface,
                 transfer_type,
+                previous_transfer,
+                chart_data,
             }
         }
     } else {

@@ -103,7 +103,7 @@ pub fn Transfer(props: TransferProps) -> Element {
         Flexbox {
             justify_content: "flex-start",
             Wrapper{
-                width: "44px",
+                width: "32px",
                 Text {
                     text: "{ props.text }",
                     color: "{ props.color }",

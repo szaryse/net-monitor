@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use dioxus::prelude::*;
 
 use crate::app::{TransferQueue};
@@ -20,12 +21,12 @@ const LINE_HEIGHT: u64 = CHART_HEIGHT - (TRANSFER_1080P_60FPS as u64 * PIXELS_PE
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ChartProps {
-    chart_data: TransferQueue,
+    chart_data: VecDeque<f64>,
 }
 
 #[allow(non_snake_case)]
 pub fn Chart(props: ChartProps) -> Element {
-    let upload = props.chart_data.upload;
+    let upload = props.chart_data;
 
     let bars = upload.iter().enumerate().map(|(index, transfer)| {
         let transfer_mbits = *transfer / 1000.0;

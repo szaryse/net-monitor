@@ -15,7 +15,7 @@ pub struct ChartViewProps {
 
 #[allow(non_snake_case)]
 pub fn ChartView(props: ChartViewProps) -> Element {
-    let chart_data = props.chart_data.clone();
+    let chart_data = props.chart_data;
 
     rsx! {
         Flexbox {
@@ -27,14 +27,16 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                 flex_grow: "0",
                 if props.transfer_type == "Upload" {
                     Transfer {
-                        text: "U\u{02191}",
+                        // text: "U\u{02191}",
+                        text: "UL",
                         value: "{props.transmitted}",
                         color: "#bf94ff",
                         height: "24px",
                         font_size: "20px"
                     }
                     Transfer {
-                        text: "D\u{02193}",
+                        // text: "D\u{02193}",
+                        text: "DL",
                         value: "{props.received}",
                         height: "16px",
                         font_size: "14px",
@@ -57,8 +59,14 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                     }
                 }
             }
-            Chart{
-                chart_data: chart_data(),
+            if props.transfer_type == "Upload" {
+                Chart{
+                    chart_data: chart_data().upload,
+                }
+            } else {
+                Chart{
+                    chart_data: chart_data().download,
+                }
             }
         }
     }
