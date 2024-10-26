@@ -4,9 +4,9 @@ use dioxus::prelude::*;
 use crate::app::{TransferQueue};
 
 const CHART_HEIGHT: u64 = 40; // in pixels
-const CHART_WIDTH: u64 = 180; // 30 bars per minute
-const BAR_WIDTH: u64 = 4; // total bar width is 6px
-const BAR_MARGIN: u64 = 2;
+const CHART_WIDTH: u64 = 180; // 60 bars per minute
+const BAR_WIDTH: u64 = 2; // total bar width is 3px
+const BAR_MARGIN: u64 = 1;
 
 // recommended transfer in Mbits
 const TRANSFER_720P_30FPS: f64 = 3.0;
@@ -15,7 +15,7 @@ const TRANSFER_720P_30FPS: f64 = 3.0;
 const TRANSFER_1080P_60FPS: f64 = 6.0;
 
 // for Upload bar chart only
-const PIXELS_PER_MBIT: u64 = 5; // CHART_HEIGHT divided by 8 Mbit (max_y_Mbits)
+const PIXELS_PER_MBIT: u64 = 5; // CHART_HEIGHT divided by 8 Mbit (max_y_mbits)
 const LINE_HEIGHT: u64 = CHART_HEIGHT - (TRANSFER_1080P_60FPS as u64 * PIXELS_PER_MBIT);
 
 #[derive(PartialEq, Props, Clone)]

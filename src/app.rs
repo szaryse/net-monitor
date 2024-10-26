@@ -12,7 +12,8 @@ use crate::components::{ChartViewWrapper, Flexbox, Transfer};
 use crate::helpers::{count_new_transfer, format_transfer, get_kbit_to_set, get_max_value};
 use crate::settings::Settings;
 
-pub const UPDATE_TIME: u64 = 2;
+pub const UPDATE_TIME_IN_S: u64 = 1;
+pub const TICK_NUMBER: usize = 60;
 
 #[derive(PartialEq, Clone, Debug)]
 struct CurrentTransfer {
@@ -65,7 +66,7 @@ pub fn App() -> Element {
     let mut interface = use_signal(|| String::from("Ethernet"));
     let mut transfer_type = use_signal(|| String::from("Upload"));
     let mut kbits_per_pixel = use_signal(|| 25);
-    let mut max_y_Mbits = use_signal(|| 1);
+    let mut max_y_mbits = use_signal(|| 1);
 
     use_effect(move || window.set_inner_size(LogicalSize::new(340, 56)));
 
@@ -74,7 +75,7 @@ pub fn App() -> Element {
             let networks = Networks::new_with_refreshed_list();
 
             loop {
-                sleep(Duration::from_secs(UPDATE_TIME)).await;
+                sleep(Duration::from_secs(UPDATE_TIME_IN_S)).await;
 
                 for network in networks.iter() {
                     let (interface_name, network) = network;
@@ -96,10 +97,10 @@ pub fn App() -> Element {
                         new_chart_data.push_upload_front(delta_transmitted);
                         new_chart_data.push_download_front(delta_received);
 
-                        if new_chart_data.upload.len() > 30 {
+                        if new_chart_data.upload.len() > TICK_NUMBER {
                             new_chart_data.pop_upload_back();
                         }
-                        if new_chart_data.download.len() > 30 {
+                        if new_chart_data.download.len() > TICK_NUMBER {
                             new_chart_data.pop_download_back();
                         }
 
@@ -108,10 +109,10 @@ pub fn App() -> Element {
                             let (kbit_to_set, max_y) = get_kbit_to_set(max);
 
                             kbits_per_pixel.set(kbit_to_set);
-                            max_y_Mbits.set(max_y);
+                            max_y_mbits.set(max_y);
                         } else {
                             kbits_per_pixel.set(200);
-                            max_y_Mbits.set(8);
+                            max_y_mbits.set(8);
                         }
 
                         chart_data.set(new_chart_data);
@@ -156,7 +157,7 @@ pub fn App() -> Element {
                     chart_data,
                     transfer_type: transfer_type(),
                     kbits_per_pixel: kbits_per_pixel(),
-                    max_y_Mbits: max_y_Mbits(),
+                    max_y_mbits: max_y_mbits(),
                 }
             }
         }

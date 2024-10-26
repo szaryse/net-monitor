@@ -2,7 +2,7 @@ use std::cmp::max;
 use dioxus::prelude::*;
 use crate::app::TransferQueue;
 use crate::chart::Chart;
-use crate::components::{Flexbox, Transfer};
+use crate::components::{Flexbox, Transfer, Text};
 use crate::helpers::{count_new_transfer, format_transfer};
 
 #[derive(PartialEq, Props, Clone)]
@@ -12,7 +12,7 @@ pub struct ChartViewProps {
     chart_data: Signal<TransferQueue>,
     transfer_type: String,
     kbits_per_pixel: i32,
-    max_y_Mbits: i32, // todo show
+    max_y_mbits: i32,
 }
 
 #[allow(non_snake_case)]
@@ -29,7 +29,7 @@ pub fn ChartView(props: ChartViewProps) -> Element {
             Flexbox{
                 direction: "column",
                 align_items: "flex-start",
-                width: "140px",
+                width: "116px",
                 flex_grow: "0",
                 if props.transfer_type == "Upload" {
                     Transfer {
@@ -63,10 +63,49 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                     }
                 }
             }
-            Chart{
-                chart_data: data,
-                transfer_type: props.transfer_type,
-                kbits_per_pixel: props.kbits_per_pixel,
+            Flexbox {
+                height: "40px",
+                width: "max-content",
+                justify_content: "space-between",
+                Flexbox  {
+                    justify_content: "space-between",
+                    direction: "column",
+                    align_items: "flex-end",
+                    padding: "0 4px 0 0",
+                    height: "100%",
+                    width: "24px",
+                    if props.transfer_type == "Upload" {
+                        Text {
+                            color: "green",
+                            font_size: "16px",
+                            text: "{ props.max_y_mbits }",
+                        }
+                        Text {
+                            color: "green",
+                            font_size: "16px",
+                            line_height: "12px",
+                            text: "0",
+                        }
+                    } else {
+                        Text {
+                            color: "skyblue",
+                            font_size: "16px",
+                            text: "{ props.max_y_mbits }",
+                        }
+                        Text {
+                            color: "skyblue",
+                            font_size: "16px",
+                            line_height: "12px",
+                            text: "0",
+                        }
+                    }
+
+                },
+                Chart{
+                    chart_data: data,
+                    transfer_type: props.transfer_type,
+                    kbits_per_pixel: props.kbits_per_pixel,
+                }
             }
         }
     }

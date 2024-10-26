@@ -1,5 +1,5 @@
 use std::collections::VecDeque;
-use crate::app::UPDATE_TIME;
+use crate::app::UPDATE_TIME_IN_S;
 
 pub fn set_global_styles() -> String {
     r"<style>
@@ -31,13 +31,15 @@ pub fn count_new_transfer(total_bytes: f64, bytes: f64) -> f64 {
         return 0.0;
     }
 
-    (total_bytes - bytes) * 8.0 / (1_000.0 * UPDATE_TIME as f64)
+    (total_bytes - bytes) * 8.0 / (1_000.0 * UPDATE_TIME_IN_S as f64)
 }
 
 pub fn get_kbit_to_set(transfer_value: f64) -> (i32, i32) {
     let (kbits_per_pixel, max_y) = match transfer_value {
         0.0..=1000.0 => (25, 1),
-        1000.0..=4000.0 => (100, 4),
+        1000.0..=2000.0 => (50, 2),
+        2000.0..=4000.0 => (100, 4),
+        4000.0..=6000.0 => (150, 6),
         4000.0..=8000.0 => (200, 8),
         8000.0..=16000.0 => (400, 16),
         16000.0..=32000.0 => (800, 32),
