@@ -1,4 +1,4 @@
-// todo #![windows_subsystem = "windows"]
+#![windows_subsystem = "windows"]
 
 use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao};
 use dioxus::prelude::*;
