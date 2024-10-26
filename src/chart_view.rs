@@ -1,3 +1,4 @@
+use std::cmp::max;
 use dioxus::prelude::*;
 use crate::app::TransferQueue;
 use crate::chart::Chart;
@@ -10,12 +11,17 @@ pub struct ChartViewProps {
     received: String,
     chart_data: Signal<TransferQueue>,
     transfer_type: String,
+    kbits_per_pixel: i32,
+    max_y_Mbits: i32, // todo show
 }
-
 
 #[allow(non_snake_case)]
 pub fn ChartView(props: ChartViewProps) -> Element {
     let chart_data = props.chart_data;
+    let mut data = chart_data().upload;
+    if props.transfer_type == "Download" {
+        data = chart_data().download;
+    }
 
     rsx! {
         Flexbox {
@@ -27,7 +33,6 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                 flex_grow: "0",
                 if props.transfer_type == "Upload" {
                     Transfer {
-                        // text: "U\u{02191}",
                         text: "UL",
                         value: "{props.transmitted}",
                         color: "#bf94ff",
@@ -35,7 +40,6 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                         font_size: "20px"
                     }
                     Transfer {
-                        // text: "D\u{02193}",
                         text: "DL",
                         value: "{props.received}",
                         height: "16px",
@@ -46,7 +50,7 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                     Transfer {
                         text: "D\u{02193}",
                         value: "{props.received}",
-                        color: "green",
+                        color: "skyblue",
                         height: "24px",
                         font_size: "20px"
                     }
@@ -59,14 +63,10 @@ pub fn ChartView(props: ChartViewProps) -> Element {
                     }
                 }
             }
-            if props.transfer_type == "Upload" {
-                Chart{
-                    chart_data: chart_data().upload,
-                }
-            } else {
-                Chart{
-                    chart_data: chart_data().download,
-                }
+            Chart{
+                chart_data: data,
+                transfer_type: props.transfer_type,
+                kbits_per_pixel: props.kbits_per_pixel,
             }
         }
     }

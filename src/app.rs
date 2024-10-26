@@ -9,7 +9,7 @@ use tokio::time::sleep;
 use crate::chart::Chart;
 use crate::chart_view::ChartView;
 use crate::components::{ChartViewWrapper, Flexbox, Transfer};
-use crate::helpers::{count_new_transfer, format_transfer};
+use crate::helpers::{count_new_transfer, format_transfer, get_kbit_to_set, get_max_value};
 use crate::settings::Settings;
 
 pub const UPDATE_TIME: u64 = 2;
@@ -64,6 +64,8 @@ pub fn App() -> Element {
     let mut is_settings_open = use_signal(|| false);
     let mut interface = use_signal(|| String::from("Ethernet"));
     let mut transfer_type = use_signal(|| String::from("Upload"));
+    let mut kbits_per_pixel = use_signal(|| 25);
+    let mut max_y_Mbits = use_signal(|| 1);
 
     use_effect(move || window.set_inner_size(LogicalSize::new(340, 56)));
 
@@ -99,6 +101,17 @@ pub fn App() -> Element {
                         }
                         if new_chart_data.download.len() > 30 {
                             new_chart_data.pop_download_back();
+                        }
+
+                        if transfer_type() == "Download" {
+                            let max = get_max_value(new_chart_data.download.clone());
+                            let (kbit_to_set, max_y) = get_kbit_to_set(max);
+
+                            kbits_per_pixel.set(kbit_to_set);
+                            max_y_Mbits.set(max_y);
+                        } else {
+                            kbits_per_pixel.set(200);
+                            max_y_Mbits.set(8);
                         }
 
                         chart_data.set(new_chart_data);
@@ -142,6 +155,8 @@ pub fn App() -> Element {
                     received,
                     chart_data,
                     transfer_type: transfer_type(),
+                    kbits_per_pixel: kbits_per_pixel(),
+                    max_y_Mbits: max_y_Mbits(),
                 }
             }
         }

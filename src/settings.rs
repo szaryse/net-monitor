@@ -43,6 +43,7 @@ pub fn Settings(props: SettingsProps) -> Element {
                             onclick: move |_| {
                                 transfer_type.set(String::from("Upload"));
                                 previous_transfer.set(PreviousTransfer {
+                                    // todo reset max_y and kbits_per_pixel
                                     total_received: 0.0,
                                     total_transmitted: 0.0,
                                 });
