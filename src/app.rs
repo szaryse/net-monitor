@@ -1,4 +1,4 @@
-use dioxus::desktop::{Config, WindowBuilder, LogicalSize, tao::dpi::PhysicalPosition, tao, use_window};
+use dioxus::desktop::{LogicalSize, use_window};
 use dioxus::prelude::*;
 
 use std::collections::VecDeque;
@@ -6,9 +6,8 @@ use std::time::Duration;
 use sysinfo::{Networks};
 use tokio::time::sleep;
 
-use crate::chart::Chart;
 use crate::chart_view::ChartView;
-use crate::components::{ChartViewWrapper, Flexbox, Transfer};
+use crate::components::{ChartViewWrapper};
 use crate::helpers::{count_new_transfer, format_transfer, get_kbit_to_set, get_max_value};
 use crate::settings::Settings;
 
@@ -63,8 +62,8 @@ pub fn App() -> Element {
         download: VecDeque::new(),
     });
     let mut is_settings_open = use_signal(|| false);
-    let mut interface = use_signal(|| String::from("Ethernet"));
-    let mut transfer_type = use_signal(|| String::from("Upload"));
+    let interface = use_signal(|| String::from("Ethernet"));
+    let transfer_type = use_signal(|| String::from("Upload"));
     let mut kbits_per_pixel = use_signal(|| 25);
     let mut max_y_mbits = use_signal(|| 1);
 

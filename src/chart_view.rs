@@ -1,9 +1,7 @@
-use std::cmp::max;
 use dioxus::prelude::*;
 use crate::app::TransferQueue;
 use crate::chart::Chart;
 use crate::components::{Flexbox, Transfer, Text};
-use crate::helpers::{count_new_transfer, format_transfer};
 
 #[derive(PartialEq, Props, Clone)]
 pub struct ChartViewProps {

@@ -1,6 +1,5 @@
 #![allow(non_snake_case)]
 use dioxus::prelude::*;
-use crate::chart_view::ChartViewProps;
 
 #[derive(PartialEq, Props, Clone)]
 pub struct FlexboxProps {

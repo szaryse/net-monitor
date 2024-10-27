@@ -1,8 +1,6 @@
 use std::collections::VecDeque;
 use dioxus::prelude::*;
 
-use crate::app::{TransferQueue};
-
 const CHART_HEIGHT: u64 = 40; // in pixels
 const CHART_WIDTH: u64 = 180; // 60 bars per minute
 const BAR_WIDTH: u64 = 2; // total bar width is 3px
